@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Spider_2016_Task1</string>
+    <string-array name="Departments">
+        <item>Architecture</item>
+        <item>Chemical</item>
+        <item>Civil</item>
+        <item>CSE</item>
+        <item>ECE</item>
+        <item>EEE</item>
+        <item>ICE</item>
+        <item>Mechanical</item>
+        <item>Metallurgy</item>
+        <item>Production</item>
+    </string-array>
+</resources>
