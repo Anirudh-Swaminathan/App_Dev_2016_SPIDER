@@ -7,6 +7,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.sql.Timestamp;
+
+
 public class Main2Activity extends AppCompatActivity {
 
     @Override
@@ -24,6 +27,11 @@ public class Main2Activity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+
+        long time = System.currentTimeMillis();
+        Timestamp tsTemp = new Timestamp(time);
+        String ts =  tsTemp.toString();
+        ((TextView) findViewById(R.id.timeStamp)).setText(ts);
     }
 
     @Override
