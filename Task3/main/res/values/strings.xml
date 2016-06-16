@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Spider-2016_Task2</string>
+    <string-array name="Songs">
+        <item>Awake</item>
+        <item>Boulevard</item>
+        <item>Hero</item>
+        <item>Numb</item>
+        <item>Roads</item>
+    </string-array>
 </resources>

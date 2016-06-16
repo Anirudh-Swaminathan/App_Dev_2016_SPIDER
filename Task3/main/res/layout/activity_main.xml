@@ -29,10 +29,10 @@
     <Spinner
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/spinner"
+        android:id="@+id/songs"
         android:layout_below="@+id/slideShow"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="49dp" />
+        android:layout_marginTop="49dp"
+        android:layout_toEndOf="@+id/play" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
@@ -40,9 +40,8 @@
         android:layout_height="wrap_content"
         android:text="Play"
         android:id="@+id/play"
-        android:layout_below="@+id/spinner"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="42dp" />
+        android:layout_alignTop="@+id/songs"
+        android:layout_alignParentStart="true" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
@@ -50,6 +49,6 @@
         android:layout_height="wrap_content"
         android:text="Stop"
         android:id="@+id/stop"
-        android:layout_alignBottom="@+id/play"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignTop="@+id/songs"
+        android:layout_alignEnd="@+id/slideBtn" />
 </RelativeLayout>
