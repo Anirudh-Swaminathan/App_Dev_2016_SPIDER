@@ -2,6 +2,7 @@ package com.anirudh.anirudhswami.spider_2016_task2;
 
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -10,28 +11,51 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
 
     private static int[] images = {R.mipmap.green_circle,R.mipmap.orange_triangle,R.mipmap.blue_pentagon,R.mipmap.red_square,R.mipmap.yellow_hexagon};
-    ImageView img;
-    int i = 0;
-    String song;
-    Button play,stop;
+    private ImageView img;
+    private int i = 0;
+    private String song;
+    private Button play,stop,enable,disable;
+    private TextView time_text;
+    private long timer_time = 0;
+    private long start_time = 0;
+    private boolean ended = false;
 
     PlaySong p;// = new PlaySong(MainActivity.this,play,stop);
 
-    Handler handler = new Handler(){
+    private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg){
             //final MainActivity m = (MainActivity) msg.obj;
             //final int i = m.i;
             img.setImageResource(images[i]);
             Toast.makeText(MainActivity.this,"i here is "+i,Toast.LENGTH_SHORT).show();
-            if(i == images.length-1) ((Button) findViewById(R.id.slideBtn)).setEnabled(true);
+            if(i == images.length-1){
+                ((Button) findViewById(R.id.slideBtn)).setEnabled(true);
+                enable.setEnabled(true);
+                //timeHandle.removeCallbacks(timeR);
+                //timer_time = 0;
+                ended = true;
+            }
         }
     };
+    private Handler timeHandle = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            //super.handleMessage(msg);
+            timer_time = SystemClock.uptimeMillis() - start_time;
+            int ms = (int) timer_time%1000;
+            int secs = (int) (timer_time/1000)%60;
+            int mins = (int) (timer_time/60000)%60;
+            time_text.setText(Integer.toString(mins) + " : " + String.format("%02d", secs) + " : " + String.format("%03d", ms));
+        }
+    };
+
 
     //
     @Override
@@ -42,6 +66,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         stop = (Button) findViewById(R.id.stop);
         stop.setEnabled(false);
         play = (Button) findViewById(R.id.play);
+        time_text = (TextView) findViewById(R.id.timer);
+        enable = (Button) findViewById(R.id.enable);
+        disable = (Button) findViewById(R.id.disable);
+        disable.setEnabled(false);
 
         Spinner spinner = (Spinner) findViewById(R.id.songs);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(MainActivity.this,R.array.Songs,R.layout.support_simple_spinner_dropdown_item);
@@ -55,6 +83,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onClick(View v) {
                 ((Button) findViewById(R.id.slideBtn)).setEnabled(false);
+                enable.setEnabled(false);
+                disable.setEnabled(false);
                 Runnable r = new Runnable() {
                     @Override
                     public void run() {
@@ -70,8 +100,31 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         }
                     }
                 };
+                start_time = SystemClock.uptimeMillis();
+                ended = false;
+                //timeHandle.postDelayed(timeR,0);
                 Thread t = new Thread(r);
                 t.start();
+
+                Runnable timeR = new Runnable() {
+                    @Override
+                    public void run() {
+                        synchronized (this){
+                            while (!ended){
+                                try{
+                                    Thread.sleep(1);
+                                } catch (InterruptedException e){
+                                    e.printStackTrace();
+                                    Toast.makeText(MainActivity.this,"InterruptedWxception caught",Toast.LENGTH_SHORT).show();
+                                }
+                                timeHandle.sendEmptyMessage(0);
+                            }
+                        }
+                    }
+                };
+
+                Thread time = new Thread(timeR);
+                time.start();
             }
         });
 
@@ -99,6 +152,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Toast.makeText(MainActivity.this,"The song isCancelled value is "+p.isCancelled(),Toast.LENGTH_SHORT).show();
             }
         });
+
+        
     }
 
     @Override
