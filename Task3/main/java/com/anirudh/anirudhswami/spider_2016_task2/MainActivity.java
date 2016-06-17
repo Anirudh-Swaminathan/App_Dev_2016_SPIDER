@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,SensorEventListener{
 
+    //All the variables are declared here
     private static int[] images = {R.mipmap.green_circle,R.mipmap.orange_triangle,R.mipmap.blue_pentagon,R.mipmap.red_square,R.mipmap.yellow_hexagon};
     private ImageView img;
     private int i = 0;
@@ -29,27 +30,30 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private long timer_time = 0;
     private long start_time = 0;
     private boolean ended = false;
-    private boolean enabled_slide = false;
+    private boolean enabled_slide = false,playing = false;
     private float dist = 0;
+    SensorManager sm;
 
     PlaySong p;// = new PlaySong(MainActivity.this,play,stop);
 
+    //Handler for changing the images
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg){
-            //final MainActivity m = (MainActivity) msg.obj;
-            //final int i = m.i;
             img.setImageResource(images[i]);
-            Toast.makeText(MainActivity.this,"i here is "+i,Toast.LENGTH_SHORT).show();
+            //Toast.makeText(MainActivity.this,"i here is "+i,Toast.LENGTH_SHORT).show();
             if(i == images.length-1){
                 ((Button) findViewById(R.id.slideBtn)).setEnabled(true);
                 enable.setEnabled(true);
                 //timeHandle.removeCallbacks(timeR);
                 //timer_time = 0;
+                //The timer has ended
                 ended = true;
             }
         }
     };
+
+    //Handler for the timer
     private Handler timeHandle = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -63,12 +67,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     };
 
 
-    //
+    //onCreate
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Set up all the references to all the widgets
         stop = (Button) findViewById(R.id.stop);
         stop.setEnabled(false);
         play = (Button) findViewById(R.id.play);
@@ -77,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         disable = (Button) findViewById(R.id.disable);
         disable.setEnabled(false);
 
+        //Setting up the spinner
         Spinner spinner = (Spinner) findViewById(R.id.songs);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(MainActivity.this,R.array.Songs,R.layout.support_simple_spinner_dropdown_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -85,21 +91,27 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         img = (ImageView) findViewById(R.id.slideShow);
 
-        final SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
+        //Managing the sensor
+        sm = (SensorManager) getSystemService(SENSOR_SERVICE);
         if(sm.getSensorList(Sensor.TYPE_PROXIMITY).size()!=0){
             //Do something if sensor is found
             //Here set the sensot
             Sensor s = sm.getSensorList(Sensor.TYPE_PROXIMITY).get(0);
-            Toast.makeText(MainActivity.this,"Maximum range is "+Float.toString(s.getMaximumRange()),Toast.LENGTH_SHORT).show();
+            //Toast.makeText(MainActivity.this,"Maximum range is "+Float.toString(s.getMaximumRange()),Toast.LENGTH_SHORT).show();
             sm.registerListener(this,s,SensorManager.SENSOR_DELAY_NORMAL);
+        } else {
+            Toast.makeText(MainActivity.this,"Sorry, but your phone doesn't have a proximity sensor",Toast.LENGTH_SHORT).show();
         }
 
+        //onClick for slideshow
         ((Button) findViewById(R.id.slideBtn)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ((Button) findViewById(R.id.slideBtn)).setEnabled(false);
                 enable.setEnabled(false);
                 disable.setEnabled(false);
+
+                //The runnable for the thread for the slideshow
                 Runnable r = new Runnable() {
                     @Override
                     public void run() {
@@ -121,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Thread t = new Thread(r);
                 t.start();
 
+                //The runnable for the thread for timer
                 Runnable timeR = new Runnable() {
                     @Override
                     public void run() {
@@ -143,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
 
+        //Start the song
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -151,24 +165,27 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 p.execute(song);
                 play.setEnabled(false);
                 stop.setEnabled(true);
-                Toast.makeText(MainActivity.this, "Cancelled is " + p.isCancelled(), Toast.LENGTH_SHORT).show();
+                playing = true;
+                //Toast.makeText(MainActivity.this, "Cancelled is " + p.isCancelled(), Toast.LENGTH_SHORT).show();
             }
         });
 
+        //Stop the song
         stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this,"The song isCancelled value was "+p.isCancelled(),Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this,"The song isCancelled value was "+p.isCancelled(),Toast.LENGTH_SHORT).show();
                 p.cancel(true);
                 p.mp.stop();
                 p.mp.release();
                 play.setEnabled(true);
                 stop.setEnabled(false);
-                sm.unregisterListener(MainActivity.this);
+                playing = false;
                 Toast.makeText(MainActivity.this,"The song isCancelled value is "+p.isCancelled(),Toast.LENGTH_SHORT).show();
             }
         });
 
+        //Enable the proximity sensor
         enable.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -178,6 +195,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 disable.setEnabled(true);
             }
         });
+
+        //Disable the proximity sensor
         disable.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -202,18 +221,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onPause() {
         super.onPause();
-        Toast.makeText(MainActivity.this,"The song isCancelled value was "+p.isCancelled(), Toast.LENGTH_SHORT).show();
-        p.cancel(true);
-        p.mp.stop();
-        p.mp.release();
-        Toast.makeText(MainActivity.this,"The song isCancelled value is "+p.isCancelled(),Toast.LENGTH_SHORT).show();
+        //Toast.makeText(MainActivity.this,"The song isCancelled value was "+p.isCancelled(), Toast.LENGTH_SHORT).show();
+        if(playing) {
+            p.cancel(true);
+            p.mp.stop();
+            p.mp.release();
+        }
+        //Unregister the listener for the sensor
+        sm.unregisterListener(MainActivity.this);
+        //Toast.makeText(MainActivity.this,"The song isCancelled value is "+p.isCancelled(),Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
         dist = event.values[0];
         if(enabled_slide) {
-            Toast.makeText(MainActivity.this, "Dist now is " + Float.toString(dist), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(MainActivity.this, "Dist now is " + Float.toString(dist), Toast.LENGTH_SHORT).show();
             if(dist<1.0) {
                 i++;
                 i = i % images.length;
@@ -224,6 +247,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
+        //Not needed
     }
 }

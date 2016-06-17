@@ -14,11 +14,13 @@ import java.io.IOException;
  */
 public class PlaySong extends AsyncTask<String,Void,String> implements MediaPlayer.OnCompletionListener{
 
+    //Declaring the variables
     MediaPlayer mp;
     Context context;
     Button button1;
     Button button2;
 
+    //Constructor
     public PlaySong(Context ctx,Button btn1,Button btn2){
         this.context = ctx;
         this.button1 = btn1;
@@ -28,6 +30,8 @@ public class PlaySong extends AsyncTask<String,Void,String> implements MediaPlay
     @Override
     protected String doInBackground(String... params) {
         String song = params[0];
+
+        //Choose track
         switch (song){
             case "Awake":
                 mp = MediaPlayer.create(context,R.raw.awake);
@@ -54,7 +58,7 @@ public class PlaySong extends AsyncTask<String,Void,String> implements MediaPlay
             progress = mp.getCurrentPosition();
             if(isCancelled()){
                 progress = mp.getDuration();
-                Toast.makeText(context,"Task is being  cancelled",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context,"Task is being  cancelled",Toast.LENGTH_SHORT).show();
                 break;
             }
         }
@@ -64,7 +68,7 @@ public class PlaySong extends AsyncTask<String,Void,String> implements MediaPlay
     @Override
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
-        Toast.makeText(context,"Started song successfully",Toast.LENGTH_SHORT).show();
+        Toast.makeText(context,"Started finished",Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -77,7 +81,7 @@ public class PlaySong extends AsyncTask<String,Void,String> implements MediaPlay
     @Override
     protected void onCancelled() {
         super.onCancelled();
-        Toast.makeText(context,"Task was cancelled",Toast.LENGTH_SHORT).show();
+        Toast.makeText(context,"Song was cancelled",Toast.LENGTH_SHORT).show();
         button1.setEnabled(true);
         button2.setEnabled(false);
     }
