@@ -1,5 +1,9 @@
 package com.anirudh.anirudhswami.spider_2016_task2;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
@@ -14,7 +18,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,SensorEventListener{
 
     private static int[] images = {R.mipmap.green_circle,R.mipmap.orange_triangle,R.mipmap.blue_pentagon,R.mipmap.red_square,R.mipmap.yellow_hexagon};
     private ImageView img;
@@ -25,6 +29,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private long timer_time = 0;
     private long start_time = 0;
     private boolean ended = false;
+    private boolean enabled_slide = false;
+    private float dist = 0;
 
     PlaySong p;// = new PlaySong(MainActivity.this,play,stop);
 
@@ -79,6 +85,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         img = (ImageView) findViewById(R.id.slideShow);
 
+        final SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
+        if(sm.getSensorList(Sensor.TYPE_PROXIMITY).size()!=0){
+            //Do something if sensor is found
+            //Here set the sensot
+            Sensor s = sm.getSensorList(Sensor.TYPE_PROXIMITY).get(0);
+            Toast.makeText(MainActivity.this,"Maximum range is "+Float.toString(s.getMaximumRange()),Toast.LENGTH_SHORT).show();
+            sm.registerListener(this,s,SensorManager.SENSOR_DELAY_NORMAL);
+        }
+
         ((Button) findViewById(R.id.slideBtn)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -109,13 +124,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Runnable timeR = new Runnable() {
                     @Override
                     public void run() {
-                        synchronized (this){
-                            while (!ended){
-                                try{
+                        synchronized (this) {
+                            while (!ended) {
+                                try {
                                     Thread.sleep(1);
-                                } catch (InterruptedException e){
+                                } catch (InterruptedException e) {
                                     e.printStackTrace();
-                                    Toast.makeText(MainActivity.this,"InterruptedWxception caught",Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(MainActivity.this, "InterruptedWxception caught", Toast.LENGTH_SHORT).show();
                                 }
                                 timeHandle.sendEmptyMessage(0);
                             }
@@ -132,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onClick(View v) {
                 Toast.makeText(MainActivity.this, "Playing song " + song, Toast.LENGTH_SHORT).show();
-                p  = new PlaySong(MainActivity.this,play,stop);
+                p = new PlaySong(MainActivity.this, play, stop);
                 p.execute(song);
                 play.setEnabled(false);
                 stop.setEnabled(true);
@@ -149,11 +164,29 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 p.mp.release();
                 play.setEnabled(true);
                 stop.setEnabled(false);
+                sm.unregisterListener(MainActivity.this);
                 Toast.makeText(MainActivity.this,"The song isCancelled value is "+p.isCancelled(),Toast.LENGTH_SHORT).show();
             }
         });
 
-        
+        enable.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                enabled_slide = true;
+                enable.setEnabled(false);
+                ((Button) findViewById(R.id.slideBtn)).setEnabled(false);
+                disable.setEnabled(true);
+            }
+        });
+        disable.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                enabled_slide = false;
+                enable.setEnabled(true);
+                ((Button) findViewById(R.id.slideBtn)).setEnabled(true);
+                disable.setEnabled(false);
+            }
+        });
     }
 
     @Override
@@ -174,5 +207,23 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         p.mp.stop();
         p.mp.release();
         Toast.makeText(MainActivity.this,"The song isCancelled value is "+p.isCancelled(),Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        dist = event.values[0];
+        if(enabled_slide) {
+            Toast.makeText(MainActivity.this, "Dist now is " + Float.toString(dist), Toast.LENGTH_SHORT).show();
+            if(dist<1.0) {
+                i++;
+                i = i % images.length;
+                img.setImageResource(images[i]);
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }
