@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="AddMovMenu" type="id" />
+    <item name="ViewAll" type="id" />
+    <item name="Search" type="id" />
+</resources>
