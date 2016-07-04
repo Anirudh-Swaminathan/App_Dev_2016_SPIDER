@@ -15,4 +15,10 @@
         android:title="Add Movie"
         app:showAsAction="always" />
 
+    <item
+        android:id="@+id/Sort"
+        android:icon="@drawable/ic_sort_rating"
+        android:title="Sort Entries"
+        app:showAsAction="always" />
+
 </menu>

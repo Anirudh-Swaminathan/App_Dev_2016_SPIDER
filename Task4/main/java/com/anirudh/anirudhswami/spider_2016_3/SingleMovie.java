@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -39,6 +40,7 @@ public class SingleMovie extends AppCompatActivity {
                     .into(pos);
             typ.setText(a.getStringExtra("type"));
             rat.setText(a.getStringExtra("rating"));
+            //Toast.makeText(SingleMovie.this,"Poster is \n"+a.getStringExtra("poster"),Toast.LENGTH_SHORT).show();
         }
     }
 }

@@ -3,4 +3,5 @@
     <item name="AddMovMenu" type="id" />
     <item name="ViewAll" type="id" />
     <item name="Search" type="id" />
+    <item name="Sort" type="id" />
 </resources>

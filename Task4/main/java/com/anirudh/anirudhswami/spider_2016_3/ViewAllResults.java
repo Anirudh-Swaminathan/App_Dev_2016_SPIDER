@@ -1,6 +1,7 @@
 package com.anirudh.anirudhswami.spider_2016_3;
 
 import android.content.Intent;
+import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -72,14 +73,16 @@ public class ViewAllResults extends AppCompatActivity {
     };
     */
     List<String> titles = new ArrayList<>();
+    String myTitle = "MOVIES";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_all_results);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(myTitle);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -87,6 +90,9 @@ public class ViewAllResults extends AppCompatActivity {
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(mViewPager);
 
         initializeAdapter();
         comle = titles.toArray(new String[0]);
@@ -252,6 +258,8 @@ public class ViewAllResults extends AppCompatActivity {
                 Intent addMov = new Intent(ViewAllResults.this, AddMovie.class);
                 startActivity(addMov);
                 break;
+            case R.id.Sort:
+                break;
             default:
                 Toast.makeText(ViewAllResults.this, "You made the wrong choice", Toast.LENGTH_SHORT).show();
         }
@@ -276,7 +284,21 @@ public class ViewAllResults extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            switch (position) {
+                case 0:
+                    setTitle("MOVIES");
+                    myTitle = "MOVIES";
+                    getSupportActionBar().setTitle(myTitle);
+                    return Moviesfrag.newInstance(ViewAllResults.this);
+                case 1:
+                    setTitle("SERIES");
+                    myTitle = "SERIES";
+                    getSupportActionBar().setTitle(myTitle);
+                    return Seriesfrag.newInstance(ViewAllResults.this);
+                default:
+                    Toast.makeText(ViewAllResults.this, "No Such Fragment", Toast.LENGTH_SHORT).show();
+            }
+            return null;
         }
 
         @Override
@@ -289,46 +311,11 @@ public class ViewAllResults extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "SECTION 1";
+                    return "MOVIES";
                 case 1:
-                    return "SECTION 2";
+                    return "SERIES";
             }
             return null;
-        }
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_view_all_results, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-            return rootView;
         }
     }
 
